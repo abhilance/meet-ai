@@ -3,25 +3,20 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronsDownIcon } from "lucide-react";
 import { CommandEmpty, CommandInput, CommandItem, CommandList, CommandResponsiveDialog } from "./ui/command";
-
 interface Props {
-        options: Array<{
+        options:Array<{
         id: string,
         value: string,
         children: ReactNode;
     }>
-
     onSelect: (value: string) => void
     onSearch?: (value: string) => void
     value:string
     placeholder?: string
     isSearchable?: boolean
     className?: string
-
 }
-
 export const CommandSelect = ({
-
     options,
     onSelect,
     value,
@@ -29,12 +24,13 @@ export const CommandSelect = ({
     placeholder= "Select an option",
     isSearchable,
     className
-
-}
-
-    : Props) => {
+}: Props) => {
 const [open, setopen] = useState(false)
 const selectedOption= options.find((option)=>option.value === value)
+const handleOpenChange = (open:boolean)=>{
+    onSearch?.("")
+    setopen(open)
+}
 return (
  <>
  <Button 
@@ -54,7 +50,7 @@ return (
     <CommandResponsiveDialog
     shouldFilter={!onSearch}
     open= {open}
-    onOpenChange={setopen}>
+onOpenChange={handleOpenChange}>
         <CommandInput placeholder="search" onValueChange={onSearch}/>
         <CommandList>
             <CommandEmpty>
@@ -71,14 +67,10 @@ return (
                 }}
                 >
                     {option.children}
-
-
-
                 </CommandItem>
             ))}
         </CommandList>
     </CommandResponsiveDialog>
-    </>
+</>
 )
 }
-

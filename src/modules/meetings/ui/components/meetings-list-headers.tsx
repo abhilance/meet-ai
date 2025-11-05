@@ -7,11 +7,25 @@ import { useState } from "react"
 
 import { DEFAULT_PAGE } from "@/constants"
 import { NewMeetingDialog } from "./new-meetings-dialog"
+import { MeetingsSearchFilter } from "./meetings-search-filters"
+import { StatusFilter } from "./status-filter"
+import { AgentIdFilter } from "./agent-id-filter"
+import { useMeetingsFilters } from "../../hooks/use-meetings-filter"
 export const MeetingsListHeaders = () => {
 
     
 
     const  [isDialogOpen, setisDialogOpen] = useState(false)
+    const [filters, setfilters] = useMeetingsFilters();
+    const isAnyFilterModifies= !!filters.status|| !!filters.search || !!filters.agentId;
+    const onClearFilters=()=>{
+        setfilters({
+            status: null,
+            agentId:"",
+            search: "",
+            page: 1,
+        })
+    }
     return (
         <>
        <NewMeetingDialog 
@@ -27,9 +41,17 @@ export const MeetingsListHeaders = () => {
                 </Button>
             </div>
             <div className="flex items-center gap-x-2 p-1">
-              too ilters
+              <MeetingsSearchFilter/>
+              <StatusFilter/>
+              <AgentIdFilter/>
+              {isAnyFilterModifies && (
+                <Button variant= "outline" onClick={onClearFilters}>
+                    <XCircleIcon className="size-4"/>
+                     Clear
+                </Button>
+              )}
             </div>
         </div>
-        </>
+    </>
     )
 }
