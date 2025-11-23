@@ -9,18 +9,22 @@ import { toast } from "sonner";
 import { useConfirm } from "@/modules/agents/hooks/use-confirm";
 import { useState } from "react";
 import { UpdateMeetingDialog } from "../components/update-meetings-dialog copy";
+import { UpcomingState } from "../components/upcoming-state";
+import { ActiveState } from "../components/active-state";
+import { CancelledState } from "../components/cancel-state";
+import { ProcessingState } from "../components/processing-state";
 
 interface Props {
-    meetingId : string;
+    meetingId: string;
 }
 
-export const MeetingIdView= ({
+export const MeetingIdView = ({
     meetingId
-}: Props)=>{
+}: Props) => {
 
     const trpc = useTRPC();
-    const { data }= useSuspenseQuery(
-    trpc.meetings.getOne.queryOptions({ id: meetingId}),
+    const { data } = useSuspenseQuery(
+        trpc.meetings.getOne.queryOptions({ id: meetingId }),
     )
 
     const [UpdatedMeetingDialogOpen, setUpdatedMeetingDialogOpen] = useState(false)
@@ -39,50 +43,66 @@ export const MeetingIdView= ({
             }
         }),
     )
-    const[RemoveConfirmation, confirmRemove]=useConfirm(
+    const [RemoveConfirmation, confirmRemove] = useConfirm(
         "Are you sure ",
         `The following action will remove this meetings`
     )
-    const handleRemovemeeting= async()=>{
+    const handleRemovemeeting = async () => {
         const ok = await confirmRemove();
-        if(!ok)return;
-        await removeMeeting.mutateAsync({id:meetingId})
+        if (!ok) return;
+        await removeMeeting.mutateAsync({ id: meetingId })
     }
+
+   // ...existing code...
+    const isActive = data.status === "active";
+    const isUpcoming = data.status === "upcoming";
+    const isCancelled = data.status === "cancelled";
+    const isCompleted = data.status === "completed";
+    const isProcessing = data.status === "processing";
+// ...existing code...
 
     return (
         <>
-        <RemoveConfirmation/>
-        <UpdateMeetingDialog
-        open={UpdatedMeetingDialogOpen}
-        onOpenChange={setUpdatedMeetingDialogOpen}
-        initialValues={data}
-        />
-        <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4">
-         <MeetingIdViewHeader
-         meetingId={meetingId}
-         meetingName={data.name}
-         onEdit={()=>setUpdatedMeetingDialogOpen(true)}
-         onRemove={handleRemovemeeting}
-         />
-           {JSON.stringify(data,null,2)}
-        </div>
+            <RemoveConfirmation />
+            <UpdateMeetingDialog
+                open={UpdatedMeetingDialogOpen}
+                onOpenChange={setUpdatedMeetingDialogOpen}
+                initialValues={data}
+            />
+            <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-4">
+                <MeetingIdViewHeader
+                    meetingId={meetingId}
+                    meetingName={data.name}
+                    onEdit={() => setUpdatedMeetingDialogOpen(true)}
+                    onRemove={handleRemovemeeting}
+                />
+                {isCancelled && <CancelledState/>}
+                {isActive && <ActiveState meetingId={meetingId}/>}
+                {isCompleted && <div>Completed</div>}
+                {isProcessing && <ProcessingState/>}
+                {isUpcoming && <UpcomingState
+                meetingId={meetingId}
+                onCancelMeeting={()=>{}}
+                isCancelling={false}
+                />}
+            </div>
         </>
     )
 }
 
-export const MeetingsIdViewLoading = ()=>{
+export const MeetingsIdViewLoading = () => {
     return (
         <LoadingState
-         tittle="Loading Meetings"
-         description="this may take few seconds"/>
+            tittle="Loading Meetings"
+            description="this may take few seconds" />
     )
 }
 
-export const MeetingsIdViewError = ()=> {
+export const MeetingsIdViewError = () => {
     return (
         <ErrorState
-        tittle = "Error Loading Meetings"
-        description= " Somthing went wrong "
+            tittle="Error Loading Meetings"
+            description=" Somthing went wrong "
         />
     )
 }
