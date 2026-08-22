@@ -7,7 +7,7 @@ interface Props {
     meetingId: string;
 };
 
-export const callView= ({
+export const CallView= ({
     meetingId
 }:Props)=>{
     const trpc = useTRPC();
