@@ -42,7 +42,7 @@ export const MeetingView=()=>{
 export const MeetingsViewLoading = ()=>{
     return (
         <LoadingState
-         tittle="Loading Agents"
+         tittle="Loading Meetings"
          description="this may take few seconds"/>
     )
 }
